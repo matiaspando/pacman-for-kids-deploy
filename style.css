@@ -143,3 +143,14 @@ h4 {
   background-image: url('pacman.png');  
   background-repeat: no-repeat;
 }
+
+output {
+	display: block;
+	padding: 1em 0.5em;
+	background: #ddd;
+	height: 2em;
+	overflow:auto;
+	font-size: 3em;
+	text-align: center;
+}
+

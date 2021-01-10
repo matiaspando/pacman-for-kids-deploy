@@ -23,6 +23,84 @@ const pacmanDelay = 150
 const ghostDelay = pacmanDelay
 const grid = document.querySelector('.grid')
 
+let isMobile = false
+
+if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+  console.log('you are on mobile')
+  isMobile = true
+ } else {
+  console.log('you are on desktop')
+ }
+
+
+ var start = {};
+ var end = {};
+ var tracking = false;
+ var thresholdTime = 500;
+ var thresholdDistance = 100;
+ let o = document.getElementsByTagName('output')[0];
+
+ window.addEventListener('load', function() {
+
+
+    gestureStart = function(e) {
+      o.innerHTML = '';
+      if (e.touches.length>1) {
+        tracking = false;
+        return;
+      } else {
+        tracking = true;
+        /* Hack - would normally use e.timeStamp but it's whack in Fx/Android */
+        start.t = new Date().getTime();
+        start.x = e.targetTouches[0].clientX;
+        start.y = e.targetTouches[0].clientY;
+      }
+      console.dir(start);
+    };
+    
+    gestureMove = function(e) {
+      if (tracking) {
+        e.preventDefault();
+        end.x = e.targetTouches[0].clientX;
+        end.y = e.targetTouches[0].clientY;
+      }
+    }
+    gestureEnd = function(e) {
+      tracking = false;
+      var now = new Date().getTime();
+      var deltaTime = now - start.t;
+      var deltaX = end.x - start.x;
+      var deltaY = end.y - start.y;
+      /* work out what the movement was */
+      if (deltaTime > thresholdTime) {
+        /* gesture too slow */
+        return;
+      } else {
+        if ((deltaX > thresholdDistance)&&(Math.abs(deltaY) < thresholdDistance)) {
+          o.innerHTML = 'derecha';
+          goRight()
+        } else if ((-deltaX > thresholdDistance)&&(Math.abs(deltaY) < thresholdDistance)) {
+          o.innerHTML = 'izquierda';
+          goLeft()
+        } else if ((deltaY > thresholdDistance)&&(Math.abs(deltaX) < thresholdDistance)) {
+          o.innerHTML = 'abajo';
+          goDown()
+        } else if ((-deltaY > thresholdDistance)&&(Math.abs(deltaX) < thresholdDistance)) {
+          o.innerHTML = 'arriba';
+          goUp()
+        } else {
+          o.innerHTML = '';
+        }
+      }
+    }
+  
+    o.addEventListener('touchstart', gestureStart, false);
+    o.addEventListener('touchmove', gestureMove, false);
+    o.addEventListener('touchend', gestureEnd, false);
+  
+  }, false);
+ 
+
 const layout = [
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
