@@ -1,19 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pacman for kids</title>
-  <meta name="description" content="A pacman game made with javascript. I start this project based on the work of Ania Kuvow">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mavo/0.2.0/mavo.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mavo/0.2.0/mavo.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.7.2/tufte.min.css">
-</head>
-<body mv-app="pacman-for-kids" mv-storage="https://github.com/matiaspando/pacman-for-kids/blob/main/data" mv-plugins="tinymce">
-    <h1 id="title" property>Pacman for kids</h1>
-    <div id="content" property class="tinymce">
-        Edit the headline and description.
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Pacman voice commands</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <h3>SCORE:<span id="score">0</span></h3>
+      <div class="grid"></div>
+      <div class="lifes">
+        <!-- <div class="life"></div>
+        <div class="life"></div>
+        <div class="life"></div> -->
+      </div>
+
+      <button id="start-button">Start</button>
+      <!-- <h4>OR SAY 'START' AFTER PRESSING THE MICROPHONE.</h4> 
+      <h4>SAY 'LEFT', 'RIGHT', 'UP' and 'DOWN' TO MOVE PACMAN</h4> -->
     </div>
-</body>
+
+    <!-- <div class="alan-btn"></div> -->
+
+    <!-- <script type="text/javascript"
+    src="https://studio.alan.app/web/lib/alan_lib.js"></script> -->
+    <script type="text/javascript" src="app.js" charset="utf-8"></script>
+  </body>
 </html>
