@@ -15,6 +15,7 @@ let pacmanLifes = 3
 
 let ghosts = []
 
+
 let times = 12 * 2
 
 let gameStarted = false
@@ -25,81 +26,81 @@ const grid = document.querySelector('.grid')
 
 let isMobile = false
 
-if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
   console.log('you are on mobile')
   isMobile = true
- } else {
+} else {
   console.log('you are on desktop')
- }
+}
 
 
- var start = {};
- var end = {};
- var tracking = false;
- var thresholdTime = 500;
- var thresholdDistance = 100;
- let o = document.getElementsByTagName('output')[0];
+var start = {};
+var end = {};
+var tracking = false;
+var thresholdTime = 500;
+var thresholdDistance = 100;
+let o = document.getElementsByTagName('output')[0];
 
- window.addEventListener('load', function() {
+window.addEventListener('load', function () {
 
 
-    gestureStart = function(e) {
-      o.innerHTML = '';
-      if (e.touches.length>1) {
-        tracking = false;
-        return;
-      } else {
-        tracking = true;
-        /* Hack - would normally use e.timeStamp but it's whack in Fx/Android */
-        start.t = new Date().getTime();
-        start.x = e.targetTouches[0].clientX;
-        start.y = e.targetTouches[0].clientY;
-      }
-      console.dir(start);
-    };
-    
-    gestureMove = function(e) {
-      if (tracking) {
-        e.preventDefault();
-        end.x = e.targetTouches[0].clientX;
-        end.y = e.targetTouches[0].clientY;
-      }
-    }
-    gestureEnd = function(e) {
+  gestureStart = function (e) {
+    o.innerHTML = '';
+    if (e.touches.length > 1) {
       tracking = false;
-      var now = new Date().getTime();
-      var deltaTime = now - start.t;
-      var deltaX = end.x - start.x;
-      var deltaY = end.y - start.y;
-      /* work out what the movement was */
-      if (deltaTime > thresholdTime) {
-        /* gesture too slow */
-        return;
+      return;
+    } else {
+      tracking = true;
+      /* Hack - would normally use e.timeStamp but it's whack in Fx/Android */
+      start.t = new Date().getTime();
+      start.x = e.targetTouches[0].clientX;
+      start.y = e.targetTouches[0].clientY;
+    }
+    console.dir(start);
+  };
+
+  gestureMove = function (e) {
+    if (tracking) {
+      e.preventDefault();
+      end.x = e.targetTouches[0].clientX;
+      end.y = e.targetTouches[0].clientY;
+    }
+  }
+  gestureEnd = function (e) {
+    tracking = false;
+    var now = new Date().getTime();
+    var deltaTime = now - start.t;
+    var deltaX = end.x - start.x;
+    var deltaY = end.y - start.y;
+    /* work out what the movement was */
+    if (deltaTime > thresholdTime) {
+      /* gesture too slow */
+      return;
+    } else {
+      if ((deltaX > thresholdDistance) && (Math.abs(deltaY) < thresholdDistance)) {
+        o.innerHTML = 'derecha';
+        goRight()
+      } else if ((-deltaX > thresholdDistance) && (Math.abs(deltaY) < thresholdDistance)) {
+        o.innerHTML = 'izquierda';
+        goLeft()
+      } else if ((deltaY > thresholdDistance) && (Math.abs(deltaX) < thresholdDistance)) {
+        o.innerHTML = 'abajo';
+        goDown()
+      } else if ((-deltaY > thresholdDistance) && (Math.abs(deltaX) < thresholdDistance)) {
+        o.innerHTML = 'arriba';
+        goUp()
       } else {
-        if ((deltaX > thresholdDistance)&&(Math.abs(deltaY) < thresholdDistance)) {
-          o.innerHTML = 'derecha';
-          goRight()
-        } else if ((-deltaX > thresholdDistance)&&(Math.abs(deltaY) < thresholdDistance)) {
-          o.innerHTML = 'izquierda';
-          goLeft()
-        } else if ((deltaY > thresholdDistance)&&(Math.abs(deltaX) < thresholdDistance)) {
-          o.innerHTML = 'abajo';
-          goDown()
-        } else if ((-deltaY > thresholdDistance)&&(Math.abs(deltaX) < thresholdDistance)) {
-          o.innerHTML = 'arriba';
-          goUp()
-        } else {
-          o.innerHTML = '';
-        }
+        o.innerHTML = '';
       }
     }
-  
-    o.addEventListener('touchstart', gestureStart, false);
-    o.addEventListener('touchmove', gestureMove, false);
-    o.addEventListener('touchend', gestureEnd, false);
-  
-  }, false);
- 
+  }
+
+  o.addEventListener('touchstart', gestureStart, false);
+  o.addEventListener('touchmove', gestureMove, false);
+  o.addEventListener('touchend', gestureEnd, false);
+
+}, false);
+
 
 const layout = [
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -193,25 +194,30 @@ function startGame() {
   pacmanCurrentIndex = 490
   //squares[pacmanCurrentIndex].style.transform = 'none'
   ghosts = [
-    new Ghost('blinky', 348, ghostDelay),
+    new Ghost('blinky', 348, ghostDelay, 'player1'),
     new Ghost('pinky', 376, ghostDelay),
     new Ghost('inky', 351, ghostDelay),
-    new Ghost('clyde', 379, ghostDelay)
+    new Ghost('clyde', 379, ghostDelay, 'player2')
   ]
 
   //draw my ghosts onto the grid
   ghosts.forEach(ghost => {
     squares[ghost.currentIndex].classList.add(ghost.className)
     squares[ghost.currentIndex].classList.add('ghost')
+    ghost.ghostCommands = []
   })
   //move the Ghosts randomly
   ghosts.forEach(ghost => moveGhost(ghost))
   document.addEventListener('keyup', movePacman)
+  document.addEventListener('keyup', moveGhostByPlayer1)
+  document.addEventListener('keyup', moveGhostByPlayer2)
+
   goRight()
   checkWinId = setInterval(checkForWin, 50)
   gameOverId = setInterval(checkForGameOver, 50)
 
   gameStarted = true
+  
 
   squares[pacmanCurrentIndex].classList.add('pac-man')
   squares[pacmanCurrentIndex].classList.add('pac-man-right')
@@ -219,6 +225,19 @@ function startGame() {
 }
 
 function clearBoard() {
+
+  clearTimeout(killPacmanTimeOutId)
+
+  let g1 = getGhostPlayer1()
+  if (g1 && g1.interValId) {
+    clearInterval(g1.interValId)
+  }
+
+  let g2 = getGhostPlayer2()
+  if (g2 && g2.interValId) {
+    clearInterval(g2.interValId)
+  }
+
   for (let i = 0; i < squares.length; i++) {
     if (squares[i]) {
 
@@ -226,13 +245,14 @@ function clearBoard() {
         removePacman()
       }
 
-      if (squares[i].classList.contains('ghost')) {
-        squares[i].classList.remove('ghost')
-      }
+      //if (squares[i].classList.contains('ghost')) {
+      squares[i].classList.remove('ghost')
+      //}
       squares[i].classList.remove('blinky')
       squares[i].classList.remove('pinky')
       squares[i].classList.remove('inky')
       squares[i].classList.remove('clyde')
+      squares[i].style.transform = null
     }
   }
 }
@@ -293,6 +313,7 @@ function clearPacmanMoves() {
   leftId = 0
   downId = 0
   upId = 0
+
 }
 
 function goLeft() {
@@ -309,7 +330,7 @@ function goLeft() {
     } else {
       removePacman()
       pacmanCurrentIndex -= 1
-      if (squares[pacmanCurrentIndex - 1] === squares[363]) {
+      if (pacmanCurrentIndex === 364) {
         pacmanCurrentIndex = 391
       }
       pacDotEaten()
@@ -335,7 +356,7 @@ function goRight() {
     } else {
       removePacman()
       pacmanCurrentIndex += 1
-      if (squares[pacmanCurrentIndex + 1] === squares[392]) {
+      if (pacmanCurrentIndex === 391) {
         pacmanCurrentIndex = 364
       }
       pacDotEaten()
@@ -413,23 +434,145 @@ function movePacman(e) {
   }
 }
 
-function moveGhostByPlayer(e) {
+function moveGhostByPlayer1(e) {
   //console.log('move '+e.keyCode)
-  switch (e.keyCode) {
-    case 37:
-      goLeft()
+  let g = getGhostPlayer1()
+  switch (e.key) {
+    case 'a':
+      moveGhostLeft(g)
       break
-    case 38:
-      goUp()
+    case 'w':
+      moveGhostUp(g)
       break
-    case 39:
-      goRight()
+    case 'd':
+      moveGhostRight(g)
       break
-    case 40:
-      goDown()
+    case 's':
+      moveGhostDown(g)
       break
   }
 }
+
+function moveGhostByPlayer2(e) {
+  //console.log('move '+e.keyCode)
+  let g = getGhostPlayer2()
+  switch (e.key) {
+    case 'j':
+      moveGhostLeft(g)
+      break
+    case 'i':
+      moveGhostUp(g)
+      break
+    case 'l':
+      moveGhostRight(g)
+      break
+    case 'k':
+      moveGhostDown(g)
+      break
+  }
+}
+
+function getGhostPlayer1() {
+  return ghosts.find(ghost => {
+    return ghost.mode === 'player1'
+  })
+}
+
+function getGhostPlayer2() {
+  return ghosts.find(ghost => {
+    return ghost.mode === 'player2'
+  })
+}
+
+function moveGhostPlayer(ghost, direction, index) {
+
+
+  let g = ghost
+  if (!g) return
+
+  g.ghostCommands.push(direction)
+  if (g.interValId) {
+    clearInterval(g.interValId)
+  }
+
+  g.interValId = setInterval(() => {
+    moveGhostOneStep(g, index)
+    if (g.ghostCommands.length > 1) {
+      g.ghostCommands.shift()
+    }
+  }, g.speed)
+
+}
+
+function moveGhostLeft(ghost) {
+  moveGhostPlayer(ghost,'left', 0)
+}
+
+function moveGhostRight(ghost) {
+  moveGhostPlayer(ghost,'right', 1)
+}
+
+function moveGhostUp(ghost) {
+  moveGhostPlayer(ghost,'up', 3)
+}
+
+function moveGhostDown(ghost) {
+  moveGhostPlayer(ghost, 'down', 2)
+}
+
+
+function moveGhostOneStep(ghost, _dir) {
+  if (!ghost.mode.includes('player')) return
+  if (!gameStarted) return
+
+  const directions = [-1, +1, width, -width]
+
+  function pickDirection(_dir) {
+    return directions[_dir]
+  }
+
+  let direction = pickDirection(_dir)
+
+  //ghost.timerId = setInterval(function () {
+  //if the next square your ghost is going to go to does not have a ghost and does not have a wall
+  if (!squares[ghost.currentIndex + direction].classList.contains('ghost') &&
+    !squares[ghost.currentIndex + direction].classList.contains('wall')) {
+    //remove the ghosts classes
+    squares[ghost.currentIndex].classList.remove(ghost.className)
+    squares[ghost.currentIndex].classList.remove('ghost', 'scared-ghost')
+    //move into that space
+    ghost.currentIndex += direction
+
+    if (ghost.currentIndex === 391) {
+      ghost.currentIndex = 365
+    } else if (ghost.currentIndex === 364) {
+      ghost.currentIndex = 390
+    }
+
+    squares[ghost.currentIndex].classList.add(ghost.className, 'ghost')
+
+  }
+
+  //if the ghost is currently scared
+  if (ghost.isScared) {
+    squares[ghost.currentIndex].classList.add('scared-ghost')
+  }
+
+  //if the ghost is currently scared and pacman is on it
+  if (ghost.isScared && squares[ghost.currentIndex].classList.contains('pac-man')) {
+    squares[ghost.currentIndex].classList.remove(ghost.className, 'ghost', 'scared-ghost')
+    ghost.currentIndex = ghost.startIndex
+    ghost.isScared = false
+    score += 100
+    updateScore()
+    squares[ghost.currentIndex].classList.add(ghost.className, 'ghost')
+  }
+  //}, ghost.speed)
+
+
+}
+
+
 
 
 function updateScore() {
@@ -480,7 +623,7 @@ function unScareGhosts() {
 
 //create ghosts using Constructors
 class Ghost {
-  constructor(className, startIndex, speed, mode='robot') {
+  constructor(className, startIndex, speed, mode = 'robot') {
     this.className = className
     this.startIndex = startIndex
     this.speed = speed
@@ -492,15 +635,72 @@ class Ghost {
 }
 
 
+//get the coordinates of pacman or blinky on the grid with X and Y axis
+function getCoordinates(index) {
+  return [index % width, Math.floor(index / width)]
+}
 
 
 function moveGhost(ghost) {
-  const directions = [-1, +1, width, -width]
-  let direction = directions[Math.floor(Math.random() * directions.length)]
+  if (ghost.mode.includes('player')) return
+
+
+  const directions = [-1,  width, +1, -width]
+
+
+
+  /*
+  function pickDirection() {
+    return directions[Math.floor(Math.random() * directions.length)]
+  }
+  */
+
+  function pickDirection() {
+    return directions[Math.floor(Math.random() * directions.length)]
+  }
+
+  let direction = pickDirection()
 
   ghost.timerId = setInterval(function () {
+
+
+/*
+    if (!squares[ghost.currentIndex + direction].classList.contains('wall')) {
+      //remove the ghosts classes
+      squares[ghost.currentIndex].classList.remove('blinky')
+      //move into that space
+
+      const [blinkyX, blinkyY] = getCoordinates(ghost.currentIndex)
+      const [pacManX, pacManY] = getCoordinates(pacmanCurrentIndex)
+      const [blinkyNextX, blinkyNextY] = getCoordinates(ghost.currentIndex + direction)
+
+      function isXCoordCloser() {
+        if ((blinkyNextX - pacManX) > (blinkyX - pacManX)) {
+          return true
+        } else return false
+      }
+
+      function isYCoordCloser() {
+        if ((blinkyNextY - pacManY) > (blinkyY - pacManY)) {
+          return true
+        } else return false
+      }
+      if (isXCoordCloser() || isYCoordCloser()) {
+        ghost.currentIndex += direction
+        squares[ghost.currentIndex].classList.add('blinky')
+
+      } else {
+        squares[ghost.currentIndex].classList.add('blinky')
+        direction = pickDirection()
+      }
+      squares[ghost.currentIndex].classList.add('blinky')
+    } else { 
+      direction = pickDirection()
+    }
+    */
+    
     //if the next square your ghost is going to go to does not have a ghost and does not have a wall
-    if (!squares[ghost.currentIndex + direction].classList.contains('ghost') &&
+    if (  !squares[ghost.currentIndex + direction].classList.contains('ghost') &&
       !squares[ghost.currentIndex + direction].classList.contains('wall')) {
       //remove the ghosts classes
       squares[ghost.currentIndex].classList.remove(ghost.className)
@@ -510,8 +710,9 @@ function moveGhost(ghost) {
       squares[ghost.currentIndex].classList.add(ghost.className, 'ghost')
       //else find a new random direction to go in
     } else {
-      direction = directions[Math.floor(Math.random() * directions.length)]
+      direction = pickDirection()
     }
+    
 
     //if the ghost is currently scared
     if (ghost.isScared) {
@@ -530,10 +731,10 @@ function moveGhost(ghost) {
   }, ghost.speed)
 }
 
-
+let killPacmanTimeOutId
 function killPacman() {
   gameStarted = false
-  setTimeout(() => {
+  killPacmanTimeOutId = setTimeout(() => {
     if (times <= 0) {
       squares[pacmanCurrentIndex].style.transform = 'none'
       pacmanLifes--
@@ -557,8 +758,18 @@ function killPacman() {
 
 //check for a game over
 function checkForGameOver() {
-  if (squares[pacmanCurrentIndex].classList.contains('ghost') &&
-    !squares[pacmanCurrentIndex].classList.contains('scared-ghost')) {
+  // if (squares[pacmanCurrentIndex].classList.contains('ghost') &&
+  //   !squares[pacmanCurrentIndex].classList.contains('scared-ghost')) {
+
+  let pacmanIsDead = false
+  ghosts.forEach(g => {
+    if (g.currentIndex === pacmanCurrentIndex && !g.isScared) {
+      pacmanIsDead = true
+    }
+  })
+
+  if (pacmanIsDead) {
+
     document.removeEventListener('keyup', movePacman)
     clearPacmanMoves()
 
@@ -583,7 +794,7 @@ function checkForWin() {
     clearInterval(checkWinId)
     setInterval(flashingBoard, 300)
     gameStarted = false
-  } 
+  }
 }
 
 

@@ -18,6 +18,17 @@ body {
   height: 20px;
 }
 
+.power-pellet {
+  background-image: radial-gradient(white 55%, transparent 5%);
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
 .blinky {
   background-image: url('blinky.png');
   z-index: +2;
@@ -117,16 +128,7 @@ h4 {
   xanimation: blinker 1s linear infinite;
 }
 
-.power-pellet {
-  background-image: radial-gradient(white 55%, transparent 5%);
-  animation: blinker 1s linear infinite;
-}
 
-@keyframes blinker {
-  50% {
-    opacity: 0;
-  }
-}
 
 .lifes {
   height: 20px;
@@ -145,10 +147,10 @@ h4 {
 }
 
 output {
-	display: block;
+	display: none;
 	padding: 1em 0.5em;
 	background: #ddd;
-	height: 2em;
+	height: 3 em;
 	overflow:auto;
 	font-size: 3em;
 	text-align: center;
