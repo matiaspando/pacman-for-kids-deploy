@@ -77,6 +77,10 @@ body {
   background-image: url('scared-ghost.png');
 }
 
+.cherry {
+  background-image: url('cherry2.png');
+}
+
 .container {
   margin-top: -5px;
 }

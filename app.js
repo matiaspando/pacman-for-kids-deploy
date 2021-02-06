@@ -12,6 +12,8 @@ let dotsLeft
 let pelletsLeft
 let pelletEaten = 0
 let pacmanLifes = 3
+let cherryAdded
+let cherryEaten
 
 let ghosts = []
 
@@ -114,13 +116,13 @@ const layout = [
   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
   1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1,
-  1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 1, 1, 5, 5, 1, 1, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 4, 1, 4, 4, 1, 4, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 2, 2, 2, 2, 2, 2, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1,
   4, 4, 4, 4, 4, 4, 0, 0, 0, 4, 1, 2, 2, 2, 2, 2, 2, 1, 4, 0, 0, 0, 4, 4, 4, 4, 4, 4,
   1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 2, 2, 2, 2, 2, 2, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1,
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 1,
   1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
   1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
   1, 3, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 3, 1,
@@ -245,9 +247,8 @@ function clearBoard() {
         removePacman()
       }
 
-      //if (squares[i].classList.contains('ghost')) {
       squares[i].classList.remove('ghost')
-      //}
+      squares[i].classList.remove('scared-ghost')
       squares[i].classList.remove('blinky')
       squares[i].classList.remove('pinky')
       squares[i].classList.remove('inky')
@@ -280,6 +281,13 @@ function createBoard() {
   }
 }
 
+function addCherry() {
+
+  squares[350].classList.add('cherry')
+  cherryAdded = true
+
+}
+
 function refreshLifes() {
   const lifes = document.querySelector('.lifes')
   lifes.textContent = ''
@@ -296,15 +304,18 @@ function flashingBoard() {
 }
 
 function removePacman() {
+
   squares[pacmanCurrentIndex].classList.remove('pac-man')
   squares[pacmanCurrentIndex].classList.remove('pac-man-right')
   squares[pacmanCurrentIndex].classList.remove('pac-man-left')
   squares[pacmanCurrentIndex].classList.remove('pac-man-down')
   squares[pacmanCurrentIndex].classList.remove('pac-man-up')
+  
 
 }
 
 function clearPacmanMoves() {
+ 
   clearInterval(rightId)
   clearInterval(leftId)
   clearInterval(downId)
@@ -437,7 +448,7 @@ function movePacman(e) {
 function moveGhostByPlayer1(e) {
   //console.log('move '+e.keyCode)
   let g = getGhostPlayer1()
-  switch (e.key) {
+  switch (e.key.toLowerCase()) {
     case 'a':
       moveGhostLeft(g)
       break
@@ -456,7 +467,7 @@ function moveGhostByPlayer1(e) {
 function moveGhostByPlayer2(e) {
   //console.log('move '+e.keyCode)
   let g = getGhostPlayer2()
-  switch (e.key) {
+  switch (e.key.toLowerCase()) {
     case 'j':
       moveGhostLeft(g)
       break
@@ -497,6 +508,7 @@ function moveGhostPlayer(ghost, direction, index) {
 
   g.interValId = setInterval(() => {
     moveGhostOneStep(g, index)
+
     if (g.ghostCommands.length > 1) {
       g.ghostCommands.shift()
     }
@@ -525,6 +537,8 @@ function moveGhostOneStep(ghost, _dir) {
   if (!ghost.mode.includes('player')) return
   if (!gameStarted) return
 
+
+
   const directions = [-1, +1, width, -width]
 
   function pickDirection(_dir) {
@@ -533,7 +547,20 @@ function moveGhostOneStep(ghost, _dir) {
 
   let direction = pickDirection(_dir)
 
-  //ghost.timerId = setInterval(function () {
+  //console.log('ghost is at ', getCoordinates(ghost.currentIndex))
+
+
+  /*
+  if (Math.abs(deltaX) < Math.abs(deltaY) ) {
+    console.log('Move on X')
+  } else {
+    console.log('Move on Y')
+  }
+  */
+
+
+  //console.log('pacman is at ',getCoordinates(pacmanCurrentIndex))
+
   //if the next square your ghost is going to go to does not have a ghost and does not have a wall
   if (!squares[ghost.currentIndex + direction].classList.contains('ghost') &&
     !squares[ghost.currentIndex + direction].classList.contains('wall')) {
@@ -562,12 +589,13 @@ function moveGhostOneStep(ghost, _dir) {
   if (ghost.isScared && squares[ghost.currentIndex].classList.contains('pac-man')) {
     squares[ghost.currentIndex].classList.remove(ghost.className, 'ghost', 'scared-ghost')
     ghost.currentIndex = ghost.startIndex
+    clearInterval(ghost.interValId)
     ghost.isScared = false
+    ghost.speed = ghostDelay
     score += 100
     updateScore()
     squares[ghost.currentIndex].classList.add(ghost.className, 'ghost')
   }
-  //}, ghost.speed)
 
 
 }
@@ -587,6 +615,14 @@ function pacDotEaten() {
     updateScore()
     squares[pacmanCurrentIndex].classList.remove('pac-dot')
     squares[pacmanCurrentIndex].innerHTML = ''
+  }
+
+  if (squares[pacmanCurrentIndex].classList.contains('cherry')) {
+    scrore=score+50
+    updateScore()
+    squares[pacmanCurrentIndex].classList.remove('cherry')
+    squares[pacmanCurrentIndex].innerHTML = ''
+    cherryEaten = true
   }
 }
 
@@ -655,12 +691,25 @@ function moveGhost(ghost) {
   }
   */
 
-  function pickDirection() {
-    return directions[Math.floor(Math.random() * directions.length)]
+  function pickDirection90deg(oldDirection) {
+    //console.log('oldDirection ' +oldDirection)
+    if (!oldDirection) {
+      return directions[Math.floor(Math.random() * directions.length)]
+    }
+
+    let newDirection
+    let i=0;
+    do {
+      i++
+      newDirection = directions[Math.floor(Math.random() * directions.length)]
+      //console.log('newDirection ' +newDirection)
+    } while (Math.abs(newDirection)==Math.abs(oldDirection))
+   // console.log('iteraciones ' + i)
+    return newDirection
   }
 
-  let direction = pickDirection()
-
+  let direction = pickDirection90deg(ghost.currentDirection)
+  ghost.currentDirection = direction
   ghost.timerId = setInterval(function () {
 
 
@@ -707,13 +756,31 @@ function moveGhost(ghost) {
       squares[ghost.currentIndex].classList.remove('ghost', 'scared-ghost')
       //move into that space
       ghost.currentIndex += direction
+
+      if (ghost.currentIndex === 391) {
+        ghost.currentIndex = 365
+      } else if (ghost.currentIndex === 364) {
+        ghost.currentIndex = 390
+      }
+
       squares[ghost.currentIndex].classList.add(ghost.className, 'ghost')
       //else find a new random direction to go in
     } else {
-      direction = pickDirection()
-    }
-    
+      direction = pickDirection90deg(ghost.currentDirection)
+      ghost.currentDirection = direction
 
+      let ghostPosition = getCoordinates(ghost.currentIndex)
+      let pacmanPosition = getCoordinates(pacmanCurrentIndex)
+    
+      let deltaX = ghostPosition[0] - pacmanPosition[0]
+      let deltaY = ghostPosition[1] - pacmanPosition[1]
+    
+      console.log('Distance on X' + Math.abs(deltaX))
+      console.log('Distance on Y' + Math.abs(deltaY))
+    }
+
+
+    
     //if the ghost is currently scared
     if (ghost.isScared) {
       squares[ghost.currentIndex].classList.add('scared-ghost')
@@ -724,9 +791,12 @@ function moveGhost(ghost) {
       squares[ghost.currentIndex].classList.remove(ghost.className, 'ghost', 'scared-ghost')
       ghost.currentIndex = ghost.startIndex
       ghost.isScared = false
+      ghost.speed = ghostDelay
       score += 100
       updateScore()
       squares[ghost.currentIndex].classList.add(ghost.className, 'ghost')
+      clearInterval(ghost.timerId)
+      moveGhost(ghost)
     }
   }, ghost.speed)
 }
@@ -740,9 +810,11 @@ function killPacman() {
       pacmanLifes--
 
       if (pacmanLifes == 0) {
-        scoreDisplay.innerHTML = 'GAME OVER'
+        scoreDisplay.innerHTML = 'GAME OVER - PRESS F5 TO PLAY AGAIN'
         let btn = document.getElementById('start-button')
         btn.style.display = 'none'
+        ghosts.forEach(ghost => clearInterval(ghost.timerId))
+
       }
       return
     }
@@ -785,7 +857,11 @@ function checkForGameOver() {
 
 //check for a win 
 function checkForWin() {
-  if (pelletsLeft === 0 && dotsLeft === 0) {
+  if (pelletsLeft === 0 && dotsLeft === 0 && !cherryAdded) {
+    addCherry() 
+  }
+
+  if (cherryEaten) {
     ghosts.forEach(ghost => clearInterval(ghost.timerId))
     clearPacmanMoves()
     document.removeEventListener('keyup', movePacman)
